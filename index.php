@@ -4,18 +4,40 @@ if (empty($_GET['meta'])) {
     die;
 }
 
+function encrypt($in, $key) {
+    // Encrypt a string with AES-256-CBC
+    $iv = trim(substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 16));
+    $key = base64_encode($key);
+    $in = gzencode($in);
+    $encrypted = openssl_encrypt($in, 'AES-256-CBC', $key, 0, $iv);
+    return $iv.$encrypted;
+}
+
+function decrypt($in, $key) {
+    // Decrypt a string.
+    $iv = substr($in, 0, 16);
+    $key = base64_encode($key);
+    $decrypted = openssl_decrypt(substr($in, 16), 'AES-256-CBC', $key, 0, $iv);
+    $decrypted = gzdecode($decrypted);
+    return $decrypted;
+}
+
 function linkify($text) {
     return preg_replace('!(((f|ht)tp(s)?://)[-a-zA-Zа-яА-Я()0-9@:%_+.~#?&;//=]+)!i', '<a href="$1" target="_BLANK">$1</a>', $text);
 }
+
 $lines = "";
+
 $filename = md5($_GET['meta']) . "-lines.json";
 if (file_exists($filename)) {
-    $lines = file_get_contents($filename);
+    $lines = decrypt(file_get_contents($filename), $_GET['meta']);
 }
+
 if (empty($lines)) {
     $lines = '{ "0":{"MetaComment":"Welcome. MetaComment shows the 50 latest comments for this reference." }}';
     echo '<div class="well well-sm col-sm-12 col-md-12"><b>You created a new page.</b></div>';
 }
+
 $lines = json_decode($lines, true);
 
 if (!empty($_COOKIE)) {
@@ -31,19 +53,20 @@ if (isset($_POST)) {
         #--;
     } else {
 		setcookie("MetaComment", base64_encode($_POST['author']));
-        $newline['<small style="color:#888;">[' . date("Y-m-d H:i") . ']</small> ' . trim(substr(strip_tags($_POST['author']), 0, 30))] = trim(substr(strip_tags($_POST['comment']), 0, 280));
+        $newline['<small style="color:#888;">[' . 
+		date("Y-m-d H:i") . ']</small> ' . 
+		trim(substr(strip_tags($_POST['author']), 0, 30))] = trim(substr(strip_tags($_POST['comment']), 0, 280));
         $lines[] = $newline;
         if (count($lines) >= 51) {
             array_splice($lines, 0, 1);
         }
-		file_put_contents($filename, json_encode($lines));
+		file_put_contents($filename, encrypt(json_encode($lines), $_GET['meta']));
 		unset($_POST);
 		header('Location: ' . $_SERVER['REQUEST_URI']);
 		die;
 
 	}
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -54,15 +77,11 @@ if (isset($_POST)) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>MetaComment | <?php echo strip_tags($_GET['meta']); ?></title>
-
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-	
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -74,12 +93,10 @@ if (isset($_POST)) {
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-
     <div class="container">
     <div class="page-heading">
 	<h1>MetaComment | <?php echo strip_tags($_GET['meta']); ?></h1>
 	</div>
-
     <div class="col-md-12 col-sm-12 well well-sm">
     <form class="form-inline" action="<?php echo $_SERVER['SCRIPT_NAME'] . "?meta=" . $_GET['meta']; ?>" method="POST">
     <div class="form-group">
@@ -96,11 +113,7 @@ if (isset($_POST)) {
 
 <?php 
 $printlines = array_reverse($lines, true);
-$default = "https://www.somewhere.com/homestar.jpg";
-$size = 40;
-$counter = 0;
 foreach ($printlines as $line) {
-	$counter++;
     foreach ($line as $key => $value) {
         echo '<div class="well well-sm col-sm-12 col-md-12"><b>' . $key . ":</b> " . linkify($value) . '</div>';
     }
