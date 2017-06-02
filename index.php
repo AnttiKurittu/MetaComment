@@ -103,9 +103,9 @@ if (isset($_POST)) {
     <input <?php if (empty($author_cookie)) {echo 'autofocus="autofocus"';}?> type="text" maxlength="30" class="form-control" id="author" placeholder="Author" value="<?php echo $author_cookie;?>" name="author" style="width:100px;<?php if (!empty($author_cookie)) {echo 'background-color:#EEFFEE";';}?>">
     </div>
     <div class="form-group">
-    <input <?php if (!empty($author_cookie)) {echo 'autofocus="autofocus"';}?> type="text" maxlength="280" class="form-control" id="comment" placeholder="Comment (max. 280 characters)" name="comment" style="width:600px;">
+    <input <?php if (!empty($author_cookie)) {echo 'autofocus="autofocus"';}?> type="text" maxlength="280" class="form-control" id="comment" placeholder="Comment (max. 280 characters)" name="comment" style="max-width:600px;">
     </div>
-    <button type="submit" class="btn btn-default pull-right">+ Add</button>
+    <button type="submit" class="btn btn-info pull-right">+ Add</button>
     </form>
     </div>
     <br>
