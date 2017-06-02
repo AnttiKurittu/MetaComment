@@ -28,7 +28,7 @@ function linkify($text) {
 
 $lines = "";
 
-$filename = md5($_GET['meta']) . "-lines.json";
+$filename = hash("sha256", $_GET['meta']) . "-lines.json";
 if (file_exists($filename)) {
     $lines = decrypt(file_get_contents($filename), $_GET['meta']);
 }
