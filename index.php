@@ -23,7 +23,10 @@ function decrypt($in, $key) {
 }
 
 function linkify($text) {
-    return preg_replace('!(((f|ht)tp(s)?://)[-a-zA-Zа-яА-Я()0-9@:%_+.~#?&;//=]+)!i', '<a href="$1" target="_BLANK">$1</a>', $text);
+    $text = preg_replace('!(((f|ht)tp(s)?://)[-a-zA-Zа-яА-Я()0-9@:%_+.~#?&;//=]+)!i', '<a href="$1" target="_BLANK">$1</a>', $text);
+	$text = preg_replace('/(\#\w+)/', '<a href="'. $_SERVER['SCRIPT_NAME'] . '?meta=$1"><span style="color:red;">$1</span></a>', $text);
+	$text = str_replace('?meta=#', '?meta=', $text); // Parse hashtags
+	return $text;
 }
 
 $lines = "";
@@ -35,7 +38,7 @@ if (file_exists($filename)) {
 
 if (empty($lines)) {
     $lines = '{ "0":{"MetaComment":"Welcome. MetaComment shows the 50 latest comments for this reference." }}';
-    echo '<div class="well well-sm col-sm-12 col-md-12"><b>You created a new page.</b></div>';
+    echo '<div class="well well-sm col-sm-12 col-md-12"><b>You created a new page for <a href="' . $_SERVER['REQUEST_URI'] .'">#'.$_GET['meta'].'</a></b></div>';
 }
 
 $lines = json_decode($lines, true);
@@ -64,7 +67,6 @@ if (isset($_POST)) {
 		unset($_POST);
 		header('Location: ' . $_SERVER['REQUEST_URI']);
 		die;
-
 	}
 }
 ?>
@@ -76,7 +78,7 @@ if (isset($_POST)) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>MetaComment | <?php echo strip_tags($_GET['meta']); ?></title>
+    <title>MetaComment | <?php echo linkify(strip_tags($_GET['meta'])); ?></title>
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -98,29 +100,31 @@ if (isset($_POST)) {
 	<h1>MetaComment | <?php echo strip_tags($_GET['meta']); ?></h1>
 	</div>
     <div class="col-md-12 col-sm-12 well well-sm">
+	
     <form class="form-inline" action="<?php echo $_SERVER['SCRIPT_NAME'] . "?meta=" . $_GET['meta']; ?>" method="POST">
-    <div class="form-group">
-    <input <?php if (empty($author_cookie)) {echo 'autofocus="autofocus"';}?> type="text" maxlength="30" class="form-control" id="author" placeholder="Author" value="<?php echo $author_cookie;?>" name="author" style="width:100px;<?php if (!empty($author_cookie)) {echo 'background-color:#EEFFEE";';}?>">
+    <div class="form-group" style="width:15%;">
+    <input <?php if (empty($author_cookie)) {echo 'autofocus="autofocus"';}?> type="text" maxlength="30" class="form-control" id="author" placeholder="Author" value="<?php echo $author_cookie;?>" name="author" style="width:100%;<?php if (!empty($author_cookie)) {echo 'background-color:#EEFFEE";';}?>">
     </div>
-    <div class="form-group">
-    <input <?php if (!empty($author_cookie)) {echo 'autofocus="autofocus"';}?> type="text" maxlength="280" class="form-control" id="comment" placeholder="Comment (max. 280 characters)" name="comment" style="max-width:600px;">
+    <div class="form-group" style="width:60%;">
+    <input style="width:100%;" <?php if (!empty($author_cookie)) {echo 'autofocus="autofocus"';}?> type="text" maxlength="280" class="form-control" id="comment" placeholder="Comment (max. 280 characters)" name="comment">
     </div>
-    <button type="submit" class="btn btn-info pull-right">+ Add</button>
+    <button type="submit" class="btn btn-info pull-right" style="width:65px;">+ Add</button>
     </form>
     </div>
     <br>
     <br>
 
 <?php 
+
 $printlines = array_reverse($lines, true);
 foreach ($printlines as $line) {
     foreach ($line as $key => $value) {
-        echo '<div class="well well-sm col-sm-12 col-md-12"><b>' . $key . ":</b> " . linkify($value) . '</div>';
+		echo '<div class="well well-sm col-sm-12 col-md-12"><b>' . $key . ":</b> " . linkify($value) . '</div>';
     }
 }
-echo '<small style="color:#999">This page uses cookies to store your username. By continuing to use this page, you accept the usage of cookies.</small> <a class="pull-right" href="' . $_SERVER['REQUEST_URI'] .'">Link to this page</a>';
+echo '<small style="color:#999">This page uses cookies to store your username. By continuing to use this page, you accept the usage of cookies. Use a #hashtag to refer to an another MetaComment page.</small> <a class="pull-right" href="' . $_SERVER['REQUEST_URI'] .'">Link to this page</a>';
 ?>
 
 </div> <!-- container -->
 </body>
-</html
+</html>
