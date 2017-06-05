@@ -99,6 +99,8 @@ if (isset($_POST)) {
     <div class="page-heading">
 	<h1>MetaComment | <?php echo strip_tags($_GET['meta']); ?></h1>
 	</div>
+	<?php echo '<small style="color:#999">This page uses cookies to store your username. By continuing to use this page, you accept the usage of cookies. Use a #hashtag to refer to an another MetaComment page.</small> <a class="pull-right" href="' . $_SERVER['REQUEST_URI'] .'">Link to this page</a>';?>
+
     <div class="col-md-12 col-sm-12 well well-sm">
 	
     <form class="form-inline" action="<?php echo $_SERVER['SCRIPT_NAME'] . "?meta=" . $_GET['meta']; ?>" method="POST">
@@ -115,16 +117,19 @@ if (isset($_POST)) {
     <br>
 
 <?php 
-
 $printlines = array_reverse($lines, true);
 foreach ($printlines as $line) {
     foreach ($line as $key => $value) {
 		echo '<div class="well well-sm col-sm-12 col-md-12"><b>' . $key . ":</b> " . linkify($value) . '</div>';
     }
 }
-echo '<small style="color:#999">This page uses cookies to store your username. By continuing to use this page, you accept the usage of cookies. Use a #hashtag to refer to an another MetaComment page.</small> <a class="pull-right" href="' . $_SERVER['REQUEST_URI'] .'">Link to this page</a>';
 ?>
-
+    <form class="form-inline" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>" method="GET">
+    <div class="form-group">
+    <input type="text" class="form-control" id="meta" placeholder="Page" name="meta" style="width:200;">
+    </div>
+    <button type="submit" class="btn btn-success" style="width:65px;">Go =></button>
+    </form>
 </div> <!-- container -->
 </body>
 </html>
