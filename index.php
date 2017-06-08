@@ -42,7 +42,7 @@ if (file_exists($filename)) {
 
 if (empty($lines)) {
     $lines = '{ "0":{"MetaComment":"Welcome. MetaComment shows the 50 latest comments for this reference." }}';
-    echo '<div class="well well-sm col-sm-12 col-md-12"><b>You created a new page for <a href="' . $_SERVER['REQUEST_URI'] .'">#'.$_GET['meta'].'</a></b></div>';
+    echo '<div class="well well-sm col-sm-12 col-md-12"><b>You created a new page for <a href="' . strip_tags($_SERVER['REQUEST_URI']) .'">#'.strip_tags($_GET['meta']).'</a></b></div>';
 }
 
 $lines = json_decode($lines, true);
