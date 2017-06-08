@@ -4,6 +4,10 @@ if (empty($_GET['meta'])) {
     die;
 }
 
+function random() {
+	return $rand = substr(md5(random_bytes(64)),rand(0,5),10);
+    }
+
 function encrypt($in, $key) {
     // Encrypt a string with AES-256-CBC
     $iv = trim(substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 16));
@@ -58,7 +62,7 @@ if (isset($_POST)) {
 		setcookie("MetaComment", base64_encode($_POST['author']));
         $newline['<small style="color:#888;">[' . 
 		date("Y-m-d H:i") . ']</small> ' . 
-		trim(substr(strip_tags($_POST['author']), 0, 30))] = trim(substr(strip_tags($_POST['comment']), 0, 280));
+		trim(substr(strip_tags($_POST['author']), 0, 30))] = trim(substr(strip_tags($_POST['comment']), 0, 5000));
         $lines[] = $newline;
         if (count($lines) >= 51) {
             array_splice($lines, 0, 1);
@@ -108,7 +112,7 @@ if (isset($_POST)) {
     <input <?php if (empty($author_cookie)) {echo 'autofocus="autofocus"';}?> type="text" maxlength="30" class="form-control" id="author" placeholder="Author" value="<?php echo $author_cookie;?>" name="author" style="width:100%;<?php if (!empty($author_cookie)) {echo 'background-color:#EEFFEE";';}?>">
     </div>
     <div class="form-group" style="width:60%;">
-    <input style="width:100%;" <?php if (!empty($author_cookie)) {echo 'autofocus="autofocus"';}?> type="text" maxlength="280" class="form-control" id="comment" placeholder="Comment (max. 280 characters)" name="comment">
+    <input style="width:100%;" <?php if (!empty($author_cookie)) {echo 'autofocus="autofocus"';}?> type="text" maxlength="5000" class="form-control" id="comment" placeholder="Comment (max. 5000 characters)" name="comment">
     </div>
     <button type="submit" class="btn btn-info pull-right" style="width:65px;">+ Add</button>
     </form>
@@ -128,7 +132,7 @@ foreach ($printlines as $line) {
     <div class="form-group">
     <input type="text" class="form-control" id="meta" placeholder="Page" name="meta" style="width:200;">
     </div>
-    <button type="submit" class="btn btn-success" style="width:65px;">Go =></button>
+    <button type="submit" class="btn btn-success" style="width:65px;">Go</button> <a href="?meta=<?php echo random(); ?>" class="btn btn-warning">random page</a>
     </form>
 </div> <!-- container -->
 </body>
