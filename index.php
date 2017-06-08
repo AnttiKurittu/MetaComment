@@ -2,6 +2,8 @@
 if (empty($_GET['meta'])) {
     header('Location: ' . $_SERVER['SCRIPT_NAME'] . '?meta=default');
     die;
+} else {
+	$_GET['meta'] = strip_tags($_GET['meta']);
 }
 
 function random() {
@@ -107,7 +109,7 @@ if (isset($_POST)) {
 
     <div class="col-md-12 col-sm-12 well well-sm">
 	
-    <form class="form-inline" action="<?php echo $_SERVER['SCRIPT_NAME'] . "?meta=" . $_GET['meta']; ?>" method="POST">
+    <form class="form-inline" action="<?php echo $_SERVER['SCRIPT_NAME'] . "?meta=" . strip_tags($_GET['meta']); ?>" method="POST">
     <div class="form-group" style="width:15%;">
     <input <?php if (empty($author_cookie)) {echo 'autofocus="autofocus"';}?> type="text" maxlength="30" class="form-control" id="author" placeholder="Author" value="<?php echo $author_cookie;?>" name="author" style="width:100%;<?php if (!empty($author_cookie)) {echo 'background-color:#EEFFEE";';}?>">
     </div>
